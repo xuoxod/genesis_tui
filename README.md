@@ -29,3 +29,4 @@ Ensure you have Rust and Cargo installed, then execute:
 ```bash
 cargo run
 ```
+# genesis_tui
