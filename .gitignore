@@ -1,0 +1,14 @@
+/target
+**/*.rs.bk
+Cargo.lock.bk
+
+# Database and snapshots
+*.db
+*.sqlite
+*.sqlite3
+fossils/
+
+# OS / Editor
+.env
+.DS_Store
+.vscode/
