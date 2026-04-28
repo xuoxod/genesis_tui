@@ -1,3 +1,4 @@
+cat << 'CODE' > src/main.rs
 use genesis_tui::core::engine::Engine;
 use genesis_tui::core::grid::{Grid, Position, Velocity};
 use genesis_tui::core::entity::Entity;
@@ -50,3 +51,4 @@ fn main() -> io::Result<()> {
     io::stdout().execute(LeaveAlternateScreen)?;
     Ok(())
 }
+CODE
