@@ -1,3 +1,5 @@
+use genesis_tui::core;
+
 fn main() {
-    println!("Hello, world!");
+    println!("[ GENESIS-TUI ] Bootstrap sequence initiated...");
 }
