@@ -20,10 +20,10 @@ A "Zero-Player" ecosystem simulator and procedural evolution engine running enti
 * `src/utils/` - Constants, colors, and shared logic.
 
 ## Usage
-```bash
+\`\`\`bash
 # Compile with pure performance optimizations
 cargo build --release
 
 # Run the terrarium
 cargo run --release
-```
+\`\`\`
