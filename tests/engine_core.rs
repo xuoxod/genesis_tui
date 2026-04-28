@@ -52,7 +52,8 @@ fn test_engine_electric_fence_collision() {
     // Turn on the right fence
     engine.fence_mut().turn_on(FenceSide::Right);
     
-    engine.step_forward(); // hits the wall!
+    engine.step_forward();
+    engine.step_forward(); // needs two ticks because bounds check happens before translation
     
     let e = &engine.entities()[0];
     assert!(e.is_electrified(), "Entity must be electrified after hitting an active electric fence");
@@ -64,6 +65,7 @@ fn test_engine_electric_fence_collision() {
     engine_safe.add_entity(entity2);
     
     // Left fence is OFF by default
+    engine_safe.step_forward();
     engine_safe.step_forward(); // hits the safe left wall
     
     let e2 = &engine_safe.entities()[0];

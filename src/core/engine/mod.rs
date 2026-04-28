@@ -12,7 +12,7 @@ pub struct Engine {
     paused: bool,
     tick_count: u64,
     fossil_record: VecDeque<Vec<Entity>>,
-    fence: ElectricFence, 
+    fence: ElectricFence,
 }
 
 impl Engine {
@@ -29,6 +29,14 @@ impl Engine {
 
     pub fn grid(&self) -> &Grid {
         &self.grid
+    }
+
+    pub fn fence(&self) -> &ElectricFence {
+        &self.fence
+    }
+
+    pub fn fence_mut(&mut self) -> &mut ElectricFence {
+        &mut self.fence
     }
 
     pub fn add_entity(&mut self, entity: Entity) {
@@ -94,24 +102,38 @@ impl Engine {
         self.tick_count += 1;
         let bounds_x = self.grid.width() as f32;
         let bounds_y = self.grid.height() as f32;
+        let t_count = self.tick_count;
+        let right_on = self.fence.is_active(FenceSide::Right);
+        let left_on = self.fence.is_active(FenceSide::Left);
+        let top_on = self.fence.is_active(FenceSide::Top);
+        let bot_on = self.fence.is_active(FenceSide::Bottom);
 
         for entity in &mut self.entities {
             let pos = entity.position().clone();
             let mut vel = entity.velocity().clone();
+            let mut zapped = false;
 
             if pos.x <= 0.0 {
                 vel.x = vel.x.abs(); 
+                if left_on { zapped = true; }
             } else if pos.x >= bounds_x {
                 vel.x = -vel.x.abs();
+                if right_on { zapped = true; }
             }
 
             if pos.y <= 0.0 {
                 vel.y = vel.y.abs();
+                if top_on { zapped = true; }
             } else if pos.y >= bounds_y {
                 vel.y = -vel.y.abs();
+                if bot_on { zapped = true; }
             }
             entity.set_velocity(vel);
             
+            if zapped {
+                entity.electrify(t_count as usize);
+            }
+
             let constrain_pos = Position::new(
                 (pos.x + vel.x).clamp(0.0, bounds_x),
                 (pos.y + vel.y).clamp(0.0, bounds_y)

@@ -46,6 +46,11 @@ fn main() -> io::Result<()> {
                         break;
                     },
                     KeyCode::Char('r') => engine_handle.send_command(EngineCommand::Reset),
+                    KeyCode::Char('1') => engine_handle.send_command(EngineCommand::ToggleFenceTop),
+                    KeyCode::Char('2') => engine_handle.send_command(EngineCommand::ToggleFenceBottom),
+                    KeyCode::Char('3') => engine_handle.send_command(EngineCommand::ToggleFenceLeft),
+                    KeyCode::Char('4') => engine_handle.send_command(EngineCommand::ToggleFenceRight),
+                    KeyCode::Char('5') => engine_handle.send_command(EngineCommand::ToggleFenceAll),
                     KeyCode::Char(' ') => engine_handle.send_command(EngineCommand::TogglePause), 
                     KeyCode::Right => engine_handle.send_command(EngineCommand::StepForward),     
                     KeyCode::Left => engine_handle.send_command(EngineCommand::StepBackward),     

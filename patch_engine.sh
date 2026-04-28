@@ -1,0 +1,1 @@
+sed -i '/pub fn grid(&self) -> &Grid {/i \    pub fn fence(&self) -> &ElectricFence {\n        &self.fence\n    }\n\n    pub fn fence_mut(&mut self) -> &mut ElectricFence {\n        &mut self.fence\n    }\n' src/core/engine/mod.rs
