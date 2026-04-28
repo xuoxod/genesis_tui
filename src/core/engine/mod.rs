@@ -142,6 +142,24 @@ impl Engine {
         }
     }
 
+
+    pub fn handle_click(&mut self, grid_x: f32, grid_y: f32) {
+        let t_count = self.tick_count as usize;
+        for entity in &mut self.entities {
+            let dx = entity.position().x - grid_x;
+            let dy = entity.position().y - grid_y;
+            let dist_sq = dx * dx + dy * dy;
+            if dist_sq <= 25.0 {
+                entity.interact(t_count);
+                entity.cure_electrification();
+                let mut vel = entity.velocity().clone();
+                vel.x += if dx > 0.0 { 1.5 } else { -1.5 };
+                vel.y += if dy > 0.0 { 1.5 } else { -1.5 };
+                entity.set_velocity(vel);
+            }
+        }
+    }
+
     pub fn tick(&mut self) {
         if !self.paused {
             self.tick_internal();

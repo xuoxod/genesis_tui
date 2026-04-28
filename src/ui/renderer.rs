@@ -1,11 +1,12 @@
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
-    text::{Line, Span},
-    widgets::{Block, Borders, Paragraph, canvas::Canvas},
+    text::{Line as TextLine, Span},
+    widgets::{Block, Borders, BorderType, Paragraph, canvas::{Canvas, Line as CanvasLine}},
     Frame,
 };
 use crate::core::engine::Engine;
+use crate::utils::fence::FenceSide;
 
 pub struct Renderer;
 
@@ -24,15 +25,77 @@ impl Renderer {
             ])
             .split(size);
 
-        let c = Canvas::default().block(Block::default().borders(Borders::ALL).title(" ⚡ AetherFlux NexusPipe • TUI Interactive Console "))
+        let fen = e.fence();
+        
+        let mut active_borders = Borders::NONE;
+        if fen.is_active(FenceSide::Top) { active_borders |= Borders::TOP; }
+        if fen.is_active(FenceSide::Bottom) { active_borders |= Borders::BOTTOM; }
+        if fen.is_active(FenceSide::Left) { active_borders |= Borders::LEFT; }
+        if fen.is_active(FenceSide::Right) { active_borders |= Borders::RIGHT; }
+
+        let any_active = active_borders != Borders::NONE;
+        
+        let tick = e.tick_count() as usize;
+        let mut border_color = Color::DarkGray;
+        let mut border_type = BorderType::Plain;
+        let mut title = " AetherFlux NexusPipe • TUI Interactive Console ";
+        
+        if any_active {
+            border_type = BorderType::Double;
+            
+            // "Nerdy" strobe effect based on the Eulerian tick
+            let cycle = tick % 10;
+            border_color = match cycle {
+                0..=2 => Color::Magenta,
+                3..=5 => Color::Cyan,
+                6..=7 => Color::White,
+                _ => Color::LightBlue,
+            };
+            title = " ⚡ [HIGH VOLTAGE] AetherFlux NexusPipe ⚡ ";
+        }
+
+        let main_block = Block::default()
+            .borders(Borders::ALL)
+            .border_type(if any_active { BorderType::Double } else { BorderType::Plain })
+            .border_style(Style::default().fg(if any_active { Color::DarkGray } else { Color::DarkGray }))
+            .title(Span::styled(title, Style::default().fg(if any_active { border_color } else { Color::White })));
+            
+        let c = Canvas::default()
+            .block(main_block)
             .x_bounds([0.0, e.grid().width() as f64])
             .y_bounds([0.0, e.grid().height() as f64])
             .paint(|ctx| {
                 let current_tick = e.tick_count() as usize;
 
-                // Render electric fence boundaries
-                // Note: The Canvas widget restricts us points/lines easily, so we just use the UI to print labels
                 let f_obj = e.fence();
+                let gw = e.grid().width() as f64;
+                let gh = e.grid().height() as f64;
+                
+                // Draw actual electric fence boundary lines directly on the physics plane
+                let cycle = current_tick % 10;
+                let hot_color = match cycle {
+                    0..=3 => Color::Magenta,
+                    4..=6 => Color::Cyan,
+                    _ => Color::White,
+                };
+
+                if f_obj.is_active(FenceSide::Bottom) {
+                    ctx.draw(&CanvasLine { x1: 0.0, y1: 0.0, x2: gw, y2: 0.0, color: hot_color });
+                    ctx.draw(&CanvasLine { x1: 0.0, y1: 1.0, x2: gw, y2: 1.0, color: Color::Yellow });
+                }
+                if f_obj.is_active(FenceSide::Top) {
+                    ctx.draw(&CanvasLine { x1: 0.0, y1: gh, x2: gw, y2: gh, color: hot_color });
+                    ctx.draw(&CanvasLine { x1: 0.0, y1: gh - 1.0, x2: gw, y2: gh - 1.0, color: Color::Yellow });
+                }
+                if f_obj.is_active(FenceSide::Left) {
+                    ctx.draw(&CanvasLine { x1: 0.0, y1: 0.0, x2: 0.0, y2: gh, color: hot_color });
+                    ctx.draw(&CanvasLine { x1: 1.0, y1: 0.0, x2: 1.0, y2: gh, color: Color::Yellow });
+                }
+                if f_obj.is_active(FenceSide::Right) {
+                    ctx.draw(&CanvasLine { x1: gw, y1: 0.0, x2: gw, y2: gh, color: hot_color });
+                    ctx.draw(&CanvasLine { x1: gw - 1.0, y1: 0.0, x2: gw - 1.0, y2: gh, color: Color::Yellow });
+                }
+
 
                 for ent in e.entities() {
                     let mut render_char = "●";
@@ -67,25 +130,24 @@ impl Renderer {
         ];
         
         // Add fence indicators
-        let fen = e.fence();
         footer_content.push(Span::styled("FENCE [1-4, 5=All]: ", Style::default().fg(Color::Blue)));
-        let t_color = if fen.is_active(crate::utils::fence::FenceSide::Top) { Color::Cyan } else { Color::DarkGray };
-        let b_color = if fen.is_active(crate::utils::fence::FenceSide::Bottom) { Color::Cyan } else { Color::DarkGray };
-        let l_color = if fen.is_active(crate::utils::fence::FenceSide::Left) { Color::Cyan } else { Color::DarkGray };
-        let r_color = if fen.is_active(crate::utils::fence::FenceSide::Right) { Color::Cyan } else { Color::DarkGray };
-        footer_content.push(Span::styled("T ", Style::default().fg(t_color)));
-        footer_content.push(Span::styled("B ", Style::default().fg(b_color)));
-        footer_content.push(Span::styled("L ", Style::default().fg(l_color)));
-        footer_content.push(Span::styled("R ", Style::default().fg(r_color)));
+        let t_color = if fen.is_active(FenceSide::Top) { Color::LightCyan } else { Color::DarkGray };
+        let b_color = if fen.is_active(FenceSide::Bottom) { Color::LightCyan } else { Color::DarkGray };
+        let l_color = if fen.is_active(FenceSide::Left) { Color::LightCyan } else { Color::DarkGray };
+        let r_color = if fen.is_active(FenceSide::Right) { Color::LightCyan } else { Color::DarkGray };
+        footer_content.push(Span::styled(if fen.is_active(FenceSide::Top) {"[T]"} else {" T "}, Style::default().fg(t_color).add_modifier(if fen.is_active(FenceSide::Top) {Modifier::BOLD | Modifier::REVERSED} else {Modifier::empty()})));
+        footer_content.push(Span::styled(if fen.is_active(FenceSide::Bottom) {"[B]"} else {" B "}, Style::default().fg(b_color).add_modifier(if fen.is_active(FenceSide::Bottom) {Modifier::BOLD | Modifier::REVERSED} else {Modifier::empty()})));
+        footer_content.push(Span::styled(if fen.is_active(FenceSide::Left) {"[L]"} else {" L "}, Style::default().fg(l_color).add_modifier(if fen.is_active(FenceSide::Left) {Modifier::BOLD | Modifier::REVERSED} else {Modifier::empty()})));
+        footer_content.push(Span::styled(if fen.is_active(FenceSide::Right) {"[R]"} else {" R "}, Style::default().fg(r_color).add_modifier(if fen.is_active(FenceSide::Right) {Modifier::BOLD | Modifier::REVERSED} else {Modifier::empty()})));
         
-        footer_content.push(Span::styled("|| ", Style::default().fg(Color::DarkGray)));
+        footer_content.push(Span::styled(" || ", Style::default().fg(Color::DarkGray)));
         footer_content.push(Span::styled("[Q]uit ", Style::default().fg(Color::LightRed)));
         footer_content.push(Span::styled("[SPC]Pause ", Style::default().fg(Color::White)));
         footer_content.push(Span::styled("[R]eset ", Style::default().fg(Color::White)));
         footer_content.push(Span::styled("[←/→]Scrub ", Style::default().fg(Color::White)));
         footer_content.push(Span::styled("[↑/↓]Speed", Style::default().fg(Color::White)));
 
-        let footer = Paragraph::new(Line::from(footer_content))
+        let footer = Paragraph::new(TextLine::from(footer_content))
             .style(Style::default().bg(Color::Black));
             
         f.render_widget(footer, chunks[1]);

@@ -71,3 +71,20 @@ fn test_engine_electric_fence_collision() {
     let e2 = &engine_safe.entities()[0];
     assert!(!e2.is_electrified(), "Entity must NOT be electrified if the fence is off");
 }
+
+#[test]
+fn test_engine_mouse_interaction_handling() {
+    let mut engine = Engine::new(Grid::new(100, 100));
+    let mut ent = Entity::new(1, Position::new(50.0, 50.0), Genome::new_random(16));
+    ent.set_velocity(Velocity::new(0.0, 0.0));
+    engine.add_entity(ent);
+
+    engine.handle_click(51.0, 51.0); // Within radius
+    engine.handle_click(10.0, 10.0); // Far away
+    
+    let clicked_ent = &engine.entities()[0];
+    
+    // Within 25 dist_sq, distance here is ~2.0, so it registers
+    assert!(clicked_ent.get_render_effect(engine.tick_count() as usize).is_some());
+    assert_ne!(clicked_ent.velocity().x, 0.0, "Velocity should have been nudged");
+}

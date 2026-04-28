@@ -17,6 +17,7 @@ fn main() -> io::Result<()> {
     enable_raw_mode()?;
     io::stdout().execute(EnterAlternateScreen)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
+    io::stdout().execute(crossterm::event::EnableMouseCapture)?;
 
     let mut engine = Engine::new(Grid::new(200, 100));
     let mut rng = rand::thread_rng();
@@ -39,37 +40,50 @@ fn main() -> io::Result<()> {
         })?;
 
         if event::poll(std::time::Duration::from_millis(tick_rate))? {
-            if let Event::Key(key) = event::read()? {
-                match key.code {
-                    KeyCode::Char('q') => {
-                        engine_handle.send_command(EngineCommand::Quit);
-                        break;
-                    },
-                    KeyCode::Char('r') => engine_handle.send_command(EngineCommand::Reset),
-                    KeyCode::Char('1') => engine_handle.send_command(EngineCommand::ToggleFenceTop),
-                    KeyCode::Char('2') => engine_handle.send_command(EngineCommand::ToggleFenceBottom),
-                    KeyCode::Char('3') => engine_handle.send_command(EngineCommand::ToggleFenceLeft),
-                    KeyCode::Char('4') => engine_handle.send_command(EngineCommand::ToggleFenceRight),
-                    KeyCode::Char('5') => engine_handle.send_command(EngineCommand::ToggleFenceAll),
-                    KeyCode::Char(' ') => engine_handle.send_command(EngineCommand::TogglePause), 
-                    KeyCode::Right => engine_handle.send_command(EngineCommand::StepForward),     
-                    KeyCode::Left => engine_handle.send_command(EngineCommand::StepBackward),     
-                    KeyCode::Up => { 
-                        tick_rate = tick_rate.saturating_sub(10).max(16); 
-                        engine_handle.send_command(EngineCommand::SetTickRate(tick_rate));
-                    },
-                    KeyCode::Down => { 
-                        tick_rate = tick_rate.saturating_add(10).min(500); 
-                        engine_handle.send_command(EngineCommand::SetTickRate(tick_rate));
-                    },
-                    _ => {}
+            let ev = event::read()?;
+            match ev {
+                Event::Key(key) => {
+                    match key.code {
+                        KeyCode::Char('q') => {
+                            engine_handle.send_command(EngineCommand::Quit);
+                            break;
+                        },
+                        KeyCode::Char('r') => engine_handle.send_command(EngineCommand::Reset),
+                        KeyCode::Char('1') => engine_handle.send_command(EngineCommand::ToggleFenceTop),
+                        KeyCode::Char('2') => engine_handle.send_command(EngineCommand::ToggleFenceBottom),
+                        KeyCode::Char('3') => engine_handle.send_command(EngineCommand::ToggleFenceLeft),
+                        KeyCode::Char('4') => engine_handle.send_command(EngineCommand::ToggleFenceRight),
+                        KeyCode::Char('5') => engine_handle.send_command(EngineCommand::ToggleFenceAll),
+                        KeyCode::Char(' ') => engine_handle.send_command(EngineCommand::TogglePause), 
+                        KeyCode::Right => engine_handle.send_command(EngineCommand::StepForward),     
+                        KeyCode::Left => engine_handle.send_command(EngineCommand::StepBackward),     
+                        KeyCode::Up => { 
+                            tick_rate = tick_rate.saturating_sub(10).max(16); 
+                            engine_handle.send_command(EngineCommand::SetTickRate(tick_rate));
+                        },
+                        KeyCode::Down => { 
+                            tick_rate = tick_rate.saturating_add(10).min(500); 
+                            engine_handle.send_command(EngineCommand::SetTickRate(tick_rate));
+                        },
+                        _ => {}
+                    }
                 }
+                Event::Mouse(mouse_event) => {
+                    if mouse_event.kind == event::MouseEventKind::Down(event::MouseButton::Left) {
+                        let state = engine_handle.get_state();
+                                        let (tw, th) = crossterm::terminal::size().unwrap_or((150, 60));
+                        let grid_pos = genesis_tui::utils::projection::ViewportProjection::term_to_grid(mouse_event.column, mouse_event.row, tw, th, state.grid().width() as f32, state.grid().height() as f32);
+                        engine_handle.send_command(EngineCommand::Click(grid_pos.x, grid_pos.y));
+                    }
+                }
+                _ => {}
             }
         }
     }
     
     disable_raw_mode()?;
     io::stdout().execute(LeaveAlternateScreen)?;
+    io::stdout().execute(crossterm::event::DisableMouseCapture)?;
     
     // Wait for graceful background shutdown
     let _ = engine_thread.join();

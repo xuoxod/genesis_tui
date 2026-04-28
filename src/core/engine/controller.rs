@@ -16,6 +16,7 @@ pub enum EngineCommand {
     ToggleFenceBottom,
     ToggleFenceLeft,
     ToggleFenceRight,
+    Click(f32, f32),
     Quit,
 }
 
@@ -78,6 +79,9 @@ impl EngineController {
                             let mut w = worker_state.write().unwrap();
                             let s = w.fence().is_active(crate::utils::fence::FenceSide::Left);
                             if s { w.fence_mut().turn_off(crate::utils::fence::FenceSide::Left); } else { w.fence_mut().turn_on(crate::utils::fence::FenceSide::Left); }
+                        }
+                        EngineCommand::Click(x, y) => {
+                            worker_state.write().unwrap().handle_click(x, y);
                         }
                         EngineCommand::ToggleFenceRight => { 
                             let mut w = worker_state.write().unwrap();
