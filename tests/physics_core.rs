@@ -18,3 +18,15 @@ fn test_gravitational_pull() {
     let pull_close = gravitational_pull(&source, &target_close, 100.0, 5.0);
     assert_eq!(pull_close.x, 5.0);
 }
+
+#[test]
+fn test_ring_intersection() {
+    let center = Position::new(0.0, 0.0);
+    let target = Position::new(3.0, 4.0); // Exact distance = 5.0
+    
+    // Radius requires direct hit within tolerance
+    assert!(genesis_tui::utils::physics::ring_intersection(&target, &center, 5.0, 0.1));
+    
+    // Target is outside the ring boundary
+    assert!(!genesis_tui::utils::physics::ring_intersection(&target, &center, 6.0, 0.1));
+}

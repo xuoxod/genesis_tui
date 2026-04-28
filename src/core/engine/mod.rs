@@ -3,8 +3,8 @@ pub mod controller;
 
 use crate::core::grid::{Grid, Position, Velocity};
 use crate::core::entity::Entity;
-use crate::core::phenomena::Singularity;
-use crate::utils::physics::gravitational_pull;
+use crate::core::phenomena::{Singularity, RadarPing};
+use crate::utils::physics::{gravitational_pull, ring_intersection};
 use std::collections::VecDeque;
 use crate::utils::fence::{ElectricFence, FenceSide};
 
@@ -17,6 +17,7 @@ pub struct Engine {
     fossil_record: VecDeque<Vec<Entity>>,
     fence: ElectricFence,
     singularities: Vec<Singularity>,
+    radar_pings: Vec<RadarPing>,
 }
 
 impl Engine {
@@ -29,6 +30,7 @@ impl Engine {
             fossil_record: VecDeque::new(),
             fence: ElectricFence::new(),
             singularities: Vec::new(),
+            radar_pings: Vec::new(),
         }
     }
 
@@ -62,6 +64,14 @@ impl Engine {
 
     pub fn pause(&mut self) {
         self.paused = true;
+    }
+
+    pub fn radar_pings(&self) -> &[RadarPing] {
+        &self.radar_pings
+    }
+
+    pub fn spawn_radar_ping(&mut self, grid_x: f32, grid_y: f32) {
+        self.radar_pings.push(RadarPing::new(Position::new(grid_x, grid_y), self.tick_count as usize, 2.0, 80.0));
     }
 
     pub fn singularities(&self) -> &[Singularity] {
@@ -117,6 +127,7 @@ impl Engine {
         let bounds_y = self.grid.height() as f32;
         let t_count = self.tick_count;
         self.singularities.retain(|s| s.is_active(t_count as usize));
+        self.radar_pings.retain(|p| p.is_active(t_count as usize));
 
         let right_on = self.fence.is_active(FenceSide::Right);
         let left_on = self.fence.is_active(FenceSide::Left);
@@ -128,6 +139,12 @@ impl Engine {
             let mut vel = entity.velocity().clone();
             let mut zapped = false;
             for singularity in &self.singularities {
+            for ping in &self.radar_pings {
+                let radius = ping.current_radius(t_count as usize);
+                if ring_intersection(&pos, &ping.position, radius, 2.0) { // 2.0 thickness tolerance
+                    entity.ping(t_count as usize);
+                }
+            }
                 let pull = gravitational_pull(&singularity.position, &pos, singularity.mass, 2.0);
                 vel.x += pull.x;
                 vel.y += pull.y;

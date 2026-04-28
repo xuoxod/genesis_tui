@@ -18,6 +18,7 @@ pub enum EngineCommand {
     ToggleFenceRight,
     Click(f32, f32),
     RightClick(f32, f32),
+    SpawnRadarPing(f32, f32),
     Quit,
 }
 
@@ -80,6 +81,9 @@ impl EngineController {
                             let mut w = worker_state.write().unwrap();
                             let s = w.fence().is_active(crate::utils::fence::FenceSide::Left);
                             if s { w.fence_mut().turn_off(crate::utils::fence::FenceSide::Left); } else { w.fence_mut().turn_on(crate::utils::fence::FenceSide::Left); }
+                        }
+                        EngineCommand::SpawnRadarPing(x, y) => {
+                            worker_state.write().unwrap().spawn_radar_ping(x, y);
                         }
                         EngineCommand::RightClick(x, y) => {
                             worker_state.write().unwrap().spawn_singularity(x, y);

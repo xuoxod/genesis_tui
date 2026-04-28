@@ -2,7 +2,7 @@ use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
     text::{Line as TextLine, Span},
-    widgets::{Block, Borders, BorderType, Paragraph, canvas::{Canvas, Line as CanvasLine}},
+    widgets::{Block, Borders, BorderType, Paragraph, canvas::{Canvas, Line as CanvasLine, Circle}},
     Frame,
 };
 use crate::core::engine::Engine;
@@ -102,6 +102,18 @@ impl Renderer {
                     let mut s_char = "O";
                     if s_cycle == 0 { s_char = "+"; } else if s_cycle == 1 { s_char = "*"; } else if s_cycle == 2 { s_char = "o"; }
                     ctx.print(s.position.x as f64, s.position.y as f64, Span::styled(s_char, Style::default().fg(Color::DarkGray).add_modifier(Modifier::BOLD)));
+                }
+
+                for ping in e.radar_pings() {
+                    let radius = ping.current_radius(current_tick) as f64;
+                    if radius > 0.0 {
+                        ctx.draw(&Circle {
+                            x: ping.position.x as f64,
+                            y: ping.position.y as f64,
+                            radius,
+                            color: Color::Green,
+                        });
+                    }
                 }
 
                 for ent in e.entities() {

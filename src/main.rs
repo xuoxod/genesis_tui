@@ -54,6 +54,10 @@ fn main() -> io::Result<()> {
                         KeyCode::Char('3') => engine_handle.send_command(EngineCommand::ToggleFenceLeft),
                         KeyCode::Char('4') => engine_handle.send_command(EngineCommand::ToggleFenceRight),
                         KeyCode::Char('5') => engine_handle.send_command(EngineCommand::ToggleFenceAll),
+                        KeyCode::Char('p') => {
+                            let state = engine_handle.get_state();
+                            engine_handle.send_command(EngineCommand::SpawnRadarPing(state.grid().width() as f32 / 2.0, state.grid().height() as f32 / 2.0));
+                        },
                         KeyCode::Char(' ') => engine_handle.send_command(EngineCommand::TogglePause), 
                         KeyCode::Right => engine_handle.send_command(EngineCommand::StepForward),     
                         KeyCode::Left => engine_handle.send_command(EngineCommand::StepBackward),     

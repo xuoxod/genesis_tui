@@ -20,3 +20,12 @@ pub fn gravitational_pull(source: &Position, target: &Position, mass: f32, max_f
 
     Velocity::new(nx * force, ny * force)
 }
+
+/// Checks if a point lies within a specific thickness of an expanding ring.
+/// Used for echolocation/radar sweeps.
+pub fn ring_intersection(point: &Position, center: &Position, radius: f32, thickness: f32) -> bool {
+    let dx = point.x - center.x;
+    let dy = point.y - center.y;
+    let dist = (dx * dx + dy * dy).sqrt();
+    (dist - radius).abs() <= thickness
+}

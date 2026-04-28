@@ -20,6 +20,7 @@ pub struct Entity {
     is_interacting: bool,
     interaction_start_tick: usize,
     shimmer_gradient: Vec<Vec3>,
+    pinged_start_tick: usize,
 }
 
 impl Entity {
@@ -43,6 +44,7 @@ impl Entity {
             is_interacting: false,
             interaction_start_tick: 0,
             shimmer_gradient,
+            pinged_start_tick: 0,
         }
     }
 
@@ -73,12 +75,22 @@ impl Entity {
         self.interaction_start_tick = current_tick;
     }
 
+    pub fn ping(&mut self, current_tick: usize) {
+        self.pinged_start_tick = current_tick;
+    }
+
     pub fn un_interact(&mut self) {
         self.is_interacting = false;
     }
 
     pub fn get_render_effect(&self, current_tick: usize) -> Option<(&'static str, Vec3)> {
         if self.is_electrified {
+        // High priority ping flash
+        let ping_elapsed = current_tick.saturating_sub(self.pinged_start_tick);
+        if self.pinged_start_tick > 0 && ping_elapsed <= 2 {
+            return Some(("X", Vec3::new(255.0, 255.0, 255.0)));
+        }
+
             let elapsed = current_tick.saturating_sub(self.electrification_start_tick);
             let cycle_index = elapsed % self.spark_gradient.len();
             let color = self.spark_gradient[cycle_index];
