@@ -1,3 +1,4 @@
+cat << 'CODE' > src/ui/renderer.rs
 use ratatui::{
     layout::{Constraint, Direction, Layout},
     style::{Color, Modifier, Style},
@@ -62,3 +63,4 @@ impl Renderer {
         f.render_widget(footer, chunks[1]);
     }
 }
+CODE

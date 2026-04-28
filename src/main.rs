@@ -35,7 +35,7 @@ fn main() -> io::Result<()> {
         // UI Thread fetches state via read lock (100% decoupled from math)
         terminal.draw(|f| {
             let state = engine_handle.get_state();
-            renderer.draw(f, &state)
+            renderer.draw(f, &state, tick_rate)
         })?;
 
         if event::poll(std::time::Duration::from_millis(tick_rate))? {

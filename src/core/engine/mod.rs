@@ -52,6 +52,10 @@ impl Engine {
         &self.entities
     }
 
+    pub fn tick_count(&self) -> u64 {
+        self.tick_count
+    }
+
     pub fn toggle_pause(&mut self) {
         self.paused = !self.paused;
     }
