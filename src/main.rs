@@ -71,9 +71,14 @@ fn main() -> io::Result<()> {
                 Event::Mouse(mouse_event) => {
                     if mouse_event.kind == event::MouseEventKind::Down(event::MouseButton::Left) {
                         let state = engine_handle.get_state();
-                                        let (tw, th) = crossterm::terminal::size().unwrap_or((150, 60));
+                        let (tw, th) = crossterm::terminal::size().unwrap_or((150, 60));
                         let grid_pos = genesis_tui::utils::projection::ViewportProjection::term_to_grid(mouse_event.column, mouse_event.row, tw, th, state.grid().width() as f32, state.grid().height() as f32);
                         engine_handle.send_command(EngineCommand::Click(grid_pos.x, grid_pos.y));
+                    } else if mouse_event.kind == event::MouseEventKind::Down(event::MouseButton::Right) {
+                        let state = engine_handle.get_state();
+                        let (tw, th) = crossterm::terminal::size().unwrap_or((150, 60));
+                        let grid_pos = genesis_tui::utils::projection::ViewportProjection::term_to_grid(mouse_event.column, mouse_event.row, tw, th, state.grid().width() as f32, state.grid().height() as f32);
+                        engine_handle.send_command(EngineCommand::RightClick(grid_pos.x, grid_pos.y));
                     }
                 }
                 _ => {}

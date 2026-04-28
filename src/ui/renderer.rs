@@ -97,6 +97,13 @@ impl Renderer {
                 }
 
 
+                for s in e.singularities() {
+                    let s_cycle = current_tick % 5;
+                    let mut s_char = "O";
+                    if s_cycle == 0 { s_char = "+"; } else if s_cycle == 1 { s_char = "*"; } else if s_cycle == 2 { s_char = "o"; }
+                    ctx.print(s.position.x as f64, s.position.y as f64, Span::styled(s_char, Style::default().fg(Color::DarkGray).add_modifier(Modifier::BOLD)));
+                }
+
                 for ent in e.entities() {
                     let mut render_char = "●";
                     let mut render_color = Color::Reset;

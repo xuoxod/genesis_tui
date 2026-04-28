@@ -1,7 +1,10 @@
 pub mod controller;
 
+
 use crate::core::grid::{Grid, Position, Velocity};
 use crate::core::entity::Entity;
+use crate::core::phenomena::Singularity;
+use crate::utils::physics::gravitational_pull;
 use std::collections::VecDeque;
 use crate::utils::fence::{ElectricFence, FenceSide};
 
@@ -13,6 +16,7 @@ pub struct Engine {
     tick_count: u64,
     fossil_record: VecDeque<Vec<Entity>>,
     fence: ElectricFence,
+    singularities: Vec<Singularity>,
 }
 
 impl Engine {
@@ -24,6 +28,7 @@ impl Engine {
             tick_count: 0,
             fossil_record: VecDeque::new(),
             fence: ElectricFence::new(),
+            singularities: Vec::new(),
         }
     }
 
@@ -57,6 +62,14 @@ impl Engine {
 
     pub fn pause(&mut self) {
         self.paused = true;
+    }
+
+    pub fn singularities(&self) -> &[Singularity] {
+        &self.singularities
+    }
+
+    pub fn spawn_singularity(&mut self, grid_x: f32, grid_y: f32) {
+        self.singularities.push(Singularity::new(Position::new(grid_x, grid_y), 50.0, self.tick_count as usize, 100));
     }
 
     pub fn entities(&self) -> &[Entity] {
@@ -103,6 +116,8 @@ impl Engine {
         let bounds_x = self.grid.width() as f32;
         let bounds_y = self.grid.height() as f32;
         let t_count = self.tick_count;
+        self.singularities.retain(|s| s.is_active(t_count as usize));
+
         let right_on = self.fence.is_active(FenceSide::Right);
         let left_on = self.fence.is_active(FenceSide::Left);
         let top_on = self.fence.is_active(FenceSide::Top);
@@ -112,6 +127,13 @@ impl Engine {
             let pos = entity.position().clone();
             let mut vel = entity.velocity().clone();
             let mut zapped = false;
+            for singularity in &self.singularities {
+                let pull = gravitational_pull(&singularity.position, &pos, singularity.mass, 2.0);
+                vel.x += pull.x;
+                vel.y += pull.y;
+            }
+            vel.x *= 0.98;
+            vel.y *= 0.98;
 
             if pos.x <= 0.0 {
                 vel.x = vel.x.abs(); 
