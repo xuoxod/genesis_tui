@@ -94,8 +94,88 @@ impl Engine {
     pub fn entities(&self) -> &[Entity] {
         &self.entities
     }
+    #[tracing::instrument(skip(self), name = "randomize_visuals")]
+    pub fn randomize_entity_visuals(&mut self) {
+        tracing::info!(
+            "Randomizing entity visuals for {} entities",
+            self.entities.len()
+        );
+        use crate::core::visuals::Shape;
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        let shapes = [
+            Shape::Dot,
+            Shape::Diamond,
+            Shape::Star,
+            Shape::Triangle,
+            Shape::Hexagon,
+            Shape::Square,
+            Shape::Cross,
+            Shape::Clover,
+            Shape::Spade,
+            Shape::Heart,
+            Shape::Vortex,
+            Shape::Snowflake,
+            Shape::Sparkle,
+            Shape::Sun,
+            Shape::Moon,
+            Shape::Meteor,
+            Shape::Target,
+            Shape::Infinity,
+        ];
+        let colors = [
+            crate::constants::colors::WHITE,
+            crate::constants::colors::RED,
+            crate::constants::colors::GREEN,
+            crate::constants::colors::BLUE,
+            crate::constants::colors::CYAN,
+            crate::constants::colors::MAGENTA,
+            crate::constants::colors::YELLOW,
+            crate::constants::colors::ORANGE,
+            crate::constants::colors::PURPLE,
+            crate::constants::colors::TEAL,
+            crate::constants::colors::NAVY,
+            crate::constants::colors::LIME,
+            crate::constants::colors::PINK,
+            crate::constants::colors::GOLD,
+        ];
+        for ent in self.entities.iter_mut() {
+            let shape = shapes[rng.gen_range(0..shapes.len())];
+            ent.set_shape(shape);
 
+            // Randomize color
+            let base_color = colors[rng.gen_range(0..colors.len())];
+            ent.set_base_color(base_color);
+
+            // Randomly clear or set gradient
+            if rng.gen_bool(0.3) {
+                ent.reset_custom_gradient();
+            } else {
+                let color_points = vec![
+                    colors[rng.gen_range(0..colors.len())],
+                    colors[rng.gen_range(0..colors.len())],
+                ];
+                ent.apply_custom_gradient(crate::utils::gradient::generate_gradient(
+                    &color_points,
+                    10,
+                ));
+            }
+        }
+    }
+
+    #[tracing::instrument(skip(self), name = "reset_visuals")]
+    pub fn reset_entity_visuals(&mut self) {
+        tracing::debug!("Resetting all entity visual styles back to default generic dot.");
+        for ent in self.entities.iter_mut() {
+            ent.reset_visuals();
+        }
+    }
+    #[tracing::instrument(skip(self), name = "add_entities")]
     pub fn add_entities(&mut self, count: usize) {
+        tracing::info!(
+            "Injecting {} dynamic entities into the physics engine matrix.",
+            count
+        );
         use rand::Rng;
         let mut rng = rand::thread_rng();
         for _ in 0..count {
@@ -117,9 +197,12 @@ impl Engine {
         }
     }
 
+    #[tracing::instrument(skip(self), name = "remove_entities")]
     pub fn remove_entities(&mut self, count: usize) {
+        tracing::warn!("Gracefully culling {} entities from the matrix.", count);
         for _ in 0..count {
             if self.entities.pop().is_none() {
+                tracing::debug!("Matrix is empty. Stopped culling early.");
                 break;
             }
         }
@@ -140,26 +223,47 @@ impl Engine {
         self.paused = false;
     }
 
+    #[tracing::instrument(skip(self), name = "step_forward")]
     pub fn step_forward(&mut self) {
+        tracing::debug!("Forced manual tick step forward.");
         self.tick_internal();
     }
 
+    #[tracing::instrument(skip(self), name = "step_backward")]
     pub fn step_backward(&mut self) {
+        tracing::info!("Rewinding time matrix into the fossil record. Enforcing hard pause.");
         self.paused = true;
         if let Some(previous_entities) = self.fossil_record.pop_back() {
             self.entities = previous_entities;
             self.tick_count = self.tick_count.saturating_sub(1);
+            tracing::trace!(
+                "Re-instantiated {} entities from tick {}",
+                self.entities.len(),
+                self.tick_count
+            );
+        } else {
+            tracing::warn!("Fossil record exhausted. Cannot step backwards.");
         }
     }
 
+    #[tracing::instrument(skip(self), name = "save_snapshot")]
     fn save_snapshot(&mut self) {
         self.fossil_record.push_back(self.entities.clone());
         if self.fossil_record.len() > 1000 {
             self.fossil_record.pop_front();
         }
+        tracing::trace!(
+            "Snapshot saved. Trace history at {} frames.",
+            self.fossil_record.len()
+        );
     }
 
+    #[tracing::instrument(skip(self), level = "trace", name = "engine_tick")]
     fn tick_internal(&mut self) {
+        tracing::trace!(
+            "Generating math vector ticks for {} entities",
+            self.entities.len()
+        );
         self.save_snapshot();
         self.tick_count += 1;
         let bounds_x = self.grid.width() as f32;

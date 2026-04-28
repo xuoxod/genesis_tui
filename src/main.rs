@@ -14,6 +14,9 @@ use ratatui::{backend::CrosstermBackend, Terminal};
 use std::io;
 
 fn main() -> io::Result<()> {
+    // 1. Initialize the Universal Ghost Reporter
+    let _telemetry_guard = genesis_tui::utils::telemetry::init_telemetry();
+    tracing::info!("Initializing Genesis TUI Engine and Window Mode...");
     enable_raw_mode()?;
     io::stdout().execute(EnterAlternateScreen)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
@@ -73,6 +76,16 @@ fn main() -> io::Result<()> {
                             state.grid().height() as f32 / 2.0,
                         ));
                     }
+                    KeyCode::Char('+') => {
+                        engine_handle.send_command(EngineCommand::AddEntities(50))
+                    }
+                    KeyCode::Char('-') => {
+                        engine_handle.send_command(EngineCommand::RemoveEntities(50))
+                    }
+                    KeyCode::Char('m') => {
+                        engine_handle.send_command(EngineCommand::RandomizeVisuals)
+                    }
+                    KeyCode::Char('c') => engine_handle.send_command(EngineCommand::ResetVisuals),
                     KeyCode::Char(' ') => engine_handle.send_command(EngineCommand::TogglePause),
                     KeyCode::Right => engine_handle.send_command(EngineCommand::StepForward),
                     KeyCode::Left => engine_handle.send_command(EngineCommand::StepBackward),

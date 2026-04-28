@@ -12,3 +12,6 @@ rusqlite = "0.32"
 serde = { version = "1.0", features = ["derive"] }
 serde_yaml = "0.9"
 tokio = { version = "1.42", features = ["full"] }
+tracing = "0.1.44"
+tracing-appender = "0.2.5"
+tracing-subscriber = { version = "0.3.23", features = ["env-filter"] }

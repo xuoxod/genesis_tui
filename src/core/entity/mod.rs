@@ -96,6 +96,9 @@ impl Entity {
     pub fn apply_custom_gradient(&mut self, gradient: Vec<Vec3>) {
         self.custom_gradient = Some(gradient);
     }
+    pub fn reset_custom_gradient(&mut self) {
+        self.custom_gradient = None;
+    }
     pub fn has_custom_gradient(&self) -> bool {
         self.custom_gradient.is_some()
     }

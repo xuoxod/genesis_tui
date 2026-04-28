@@ -3,6 +3,7 @@ use std::sync::{mpsc, Arc, RwLock};
 use std::thread::{self, JoinHandle};
 use std::time::{Duration, Instant};
 
+#[derive(Debug)]
 pub enum EngineCommand {
     Pause,
     Play,
@@ -19,6 +20,10 @@ pub enum EngineCommand {
     Click(f32, f32),
     RightClick(f32, f32),
     SpawnRadarPing(f32, f32),
+    AddEntities(usize),
+    RemoveEntities(usize),
+    RandomizeVisuals,
+    ResetVisuals,
     Quit,
 }
 
@@ -50,6 +55,7 @@ impl EngineController {
 
                 // Process all pending commands
                 while let Ok(cmd) = rx.try_recv() {
+                    tracing::debug!(?cmd, "Received EngineCommand via MPSC Channel");
                     match cmd {
                         EngineCommand::Pause => {
                             worker_state.write().unwrap().pause();
@@ -130,6 +136,18 @@ impl EngineController {
                             } else {
                                 w.fence_mut().turn_on(crate::utils::fence::FenceSide::Right);
                             }
+                        }
+                        EngineCommand::AddEntities(count) => {
+                            worker_state.write().unwrap().add_entities(count);
+                        }
+                        EngineCommand::RemoveEntities(count) => {
+                            worker_state.write().unwrap().remove_entities(count);
+                        }
+                        EngineCommand::RandomizeVisuals => {
+                            worker_state.write().unwrap().randomize_entity_visuals();
+                        }
+                        EngineCommand::ResetVisuals => {
+                            worker_state.write().unwrap().reset_entity_visuals();
                         }
                     }
                 }
