@@ -18,20 +18,13 @@ fn main() -> io::Result<()> {
     io::stdout().execute(EnterAlternateScreen)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
 
-    let grid_w = 200.0;
-    let grid_h = 100.0;
-    let mut engine = Engine::new(Grid::new(grid_w as usize, grid_h as usize));
-    
-    // Spawn 50 randomized kinetic particles/organisms
+    let mut engine = Engine::new(Grid::new(200, 100));
     let mut rng = rand::thread_rng();
     for i in 1..=50 {
-        let x = rng.gen_range(5.0..grid_w - 5.0);
-        let y = rng.gen_range(5.0..grid_h - 5.0);
-        
-        // Random velocity between -1.0 and +1.0
+        let x = rng.gen_range(5.0..195.0);
+        let y = rng.gen_range(5.0..95.0);
         let vx = rng.gen_range(-1.0..1.0);
         let vy = rng.gen_range(-1.0..1.0);
-
         let mut ent = Entity::new(i, Position::new(x, y), Genome::new_random(16));
         ent.set_velocity(Velocity::new(vx, vy));
         engine.add_entity(ent);
@@ -42,7 +35,6 @@ fn main() -> io::Result<()> {
 
     loop {
         terminal.draw(|f| renderer.draw(f, &engine))?;
-        
         if event::poll(std::time::Duration::from_millis(tick_rate))? {
             if let Event::Key(key) = event::read()? {
                 match key.code {
