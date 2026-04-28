@@ -1,3 +1,4 @@
+cat << 'CODE' > src/main.rs
 use genesis_tui::core::engine::Engine;
 use genesis_tui::core::engine::controller::{EngineController, EngineCommand};
 use genesis_tui::core::grid::{Grid, Position, Velocity};
@@ -70,3 +71,4 @@ fn main() -> io::Result<()> {
     let _ = engine_thread.join();
     Ok(())
 }
+CODE

@@ -1,3 +1,4 @@
+cat << 'CODE' > src/core/engine/mod.rs
 pub mod controller;
 
 use crate::core::grid::{Grid, Position, Velocity};
@@ -119,3 +120,4 @@ impl Engine {
         }
     }
 }
+CODE

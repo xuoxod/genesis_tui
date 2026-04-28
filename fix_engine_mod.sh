@@ -1,3 +1,4 @@
+cat << 'CODE' > src/core/engine/mod.rs
 pub mod controller;
 
 use crate::core::grid::{Grid, Position, Velocity};
@@ -22,10 +23,6 @@ impl Engine {
             tick_count: 0,
             fossil_record: VecDeque::new(),
         }
-    }
-
-    pub fn grid(&self) -> &Grid {
-        &self.grid
     }
 
     pub fn add_entity(&mut self, entity: Entity) {
@@ -85,8 +82,7 @@ impl Engine {
     fn tick_internal(&mut self) {
         self.save_snapshot();
         self.tick_count += 1;
-        let bounds_x = self.grid.width() as f32;
-        let bounds_y = self.grid.height() as f32;
+        let bounds = self.grid.bounds();
 
         for entity in &mut self.entities {
             let pos = entity.position().clone();
@@ -94,20 +90,21 @@ impl Engine {
 
             if pos.x <= 0.0 {
                 vel.x = vel.x.abs(); 
-            } else if pos.x >= bounds_x {
+            } else if pos.x >= bounds.x as f32 {
                 vel.x = -vel.x.abs();
             }
 
             if pos.y <= 0.0 {
                 vel.y = vel.y.abs();
-            } else if pos.y >= bounds_y {
+            } else if pos.y >= bounds.y as f32 {
                 vel.y = -vel.y.abs();
             }
             entity.set_velocity(vel);
+            entity.update();
             
             let constrain_pos = Position::new(
-                (pos.x + vel.x).clamp(0.0, bounds_x),
-                (pos.y + vel.y).clamp(0.0, bounds_y)
+                entity.position().x.clamp(0.0, bounds.x as f32),
+                entity.position().y.clamp(0.0, bounds.y as f32)
             );
             entity.set_position(constrain_pos);
         }
@@ -119,3 +116,4 @@ impl Engine {
         }
     }
 }
+CODE
