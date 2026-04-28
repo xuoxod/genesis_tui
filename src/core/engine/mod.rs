@@ -1,7 +1,7 @@
 pub mod controller;
 
 use crate::core::entity::Entity;
-use crate::core::grid::{Grid, Position, Velocity};
+use crate::core::grid::{Grid, Position};
 use crate::core::phenomena::{RadarPing, Singularity};
 use crate::utils::fence::{ElectricFence, FenceSide};
 use crate::utils::physics::ring_intersection;
@@ -254,7 +254,7 @@ impl Engine {
         for e_immut in &self.entities {
             flock_data.push((e_immut.position().clone(), e_immut.velocity().clone()));
         }
-        for (i, entity) in self.entities.iter_mut().enumerate() {
+        for (_i, entity) in self.entities.iter_mut().enumerate() {
             let dx = entity.position().x - grid_x;
             let dy = entity.position().y - grid_y;
             let dist_sq = dx * dx + dy * dy;
