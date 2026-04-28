@@ -10,10 +10,10 @@ fn test_grid_initialization() {
 #[test]
 fn test_coordinate_bounds() {
     let grid = Grid::new(10, 10);
-    assert!(grid.in_bounds(&Position::new(5, 5)));
-    assert!(grid.in_bounds(&Position::new(0, 0)));
-    assert!(grid.in_bounds(&Position::new(9, 9)));
-    assert!(!grid.in_bounds(&Position::new(10, 5)));
-    assert!(!grid.in_bounds(&Position::new(5, 10)));
-    assert!(!grid.in_bounds(&Position::new(10, 10)));
+    assert!(grid.in_bounds(&Position::new(5.0, 5.0)));
+    assert!(grid.in_bounds(&Position::new(0.0, 0.0)));
+    assert!(grid.in_bounds(&Position::new(9.0, 9.0)));
+    assert!(!grid.in_bounds(&Position::new(10.0, 5.0)));
+    assert!(!grid.in_bounds(&Position::new(5.0, 10.0)));
+    assert!(!grid.in_bounds(&Position::new(10.0, 10.0)));
 }

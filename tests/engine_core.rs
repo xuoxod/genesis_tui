@@ -6,7 +6,7 @@ use genesis_tui::core::genetics::Genome;
 #[test]
 fn test_engine_time_controls() {
     let mut engine = Engine::new(Grid::new(100, 100));
-    let entity = Entity::new(1, Position::new(50, 50), Genome::new_random(16));
+    let entity = Entity::new(1, Position::new(50.0, 50.0), Genome::new_random(16));
     engine.add_entity(entity);
 
     // Pause test
@@ -30,7 +30,7 @@ fn test_engine_time_controls() {
 fn test_engine_reset() {
     let mut engine = Engine::new(Grid::new(100, 100));
     engine.step_forward();
-    engine.add_entity(Entity::new(1, Position::new(0,0), Genome::new_random(16)));
+    engine.add_entity(Entity::new(1, Position::new(0.0, 0.0), Genome::new_random(16)));
     engine.reset();
     assert_eq!(engine.epoch(), 0);
     assert_eq!(engine.entities().len(), 0);

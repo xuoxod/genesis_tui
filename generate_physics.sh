@@ -1,3 +1,54 @@
+cat << 'MOD' > src/core/grid/mod.rs
+pub use glam::Vec2 as Position;
+pub use glam::Vec2 as Velocity;
+
+#[derive(Debug, Clone)]
+pub struct Grid { width: usize, height: usize }
+
+impl Grid {
+    pub fn new(width: usize, height: usize) -> Self { Self { width, height } }
+    pub fn width(&self) -> usize { self.width }
+    pub fn height(&self) -> usize { self.height }
+    pub fn in_bounds(&self, pos: &Position) -> bool {
+        pos.x >= 0.0 && pos.x < self.width as f32 &&
+        pos.y >= 0.0 && pos.y < self.height as f32
+    }
+}
+MOD
+
+cat << 'MOD' > src/core/entity/mod.rs
+use crate::core::grid::{Position, Velocity};
+use crate::core::genetics::Genome;
+
+#[derive(Debug, Clone)]
+pub struct Entity {
+    id: u64,
+    position: Position,
+    velocity: Velocity,
+    genome: Genome,
+}
+
+impl Entity {
+    pub fn new(id: u64, position: Position, genome: Genome) -> Self {
+        // We initialize with a dead velocity and let the engine inject force, or derive it from the genome.
+        Self { id, position, velocity: Velocity::ZERO, genome }
+    }
+
+    pub fn id(&self) -> u64 { self.id }
+    pub fn position(&self) -> &Position { &self.position }
+    pub fn velocity(&self) -> &Velocity { &self.velocity }
+    pub fn genome(&self) -> &Genome { &self.genome }
+    
+    pub fn set_position(&mut self, pos: Position) { self.position = pos; }
+    pub fn set_velocity(&mut self, vel: Velocity) { self.velocity = vel; }
+
+    pub fn mutate_genome(&mut self, rate: f64) {
+        self.genome.mutate(rate);
+    }
+}
+MOD
+
+cat << 'MOD' > src/core/engine/mod.rs
 use crate::core::grid::Grid;
 use crate::core::entity::Entity;
 
@@ -81,3 +132,4 @@ impl Engine {
         }
     }
 }
+MOD
