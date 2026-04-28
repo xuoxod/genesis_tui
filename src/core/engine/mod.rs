@@ -4,7 +4,7 @@ use crate::core::entity::Entity;
 use crate::core::grid::{Grid, Position, Velocity};
 use crate::core::phenomena::{RadarPing, Singularity};
 use crate::utils::fence::{ElectricFence, FenceSide};
-use crate::utils::physics::{gravitational_pull, ring_intersection};
+use crate::utils::physics::ring_intersection;
 use std::collections::VecDeque;
 
 #[derive(Clone)]

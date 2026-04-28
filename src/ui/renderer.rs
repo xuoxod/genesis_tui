@@ -50,11 +50,11 @@ impl Renderer {
 
         let tick = e.tick_count() as usize;
         let mut border_color = Color::DarkGray;
-        let mut border_type = BorderType::Plain;
+        // border_type is managed actively
         let mut title = " AetherFlux NexusPipe • TUI Interactive Console ";
 
         if any_active {
-            border_type = BorderType::Double;
+            // Double border
 
             // "Nerdy" strobe effect based on the Eulerian tick
             let cycle = tick % 10;

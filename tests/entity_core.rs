@@ -58,7 +58,7 @@ fn test_entity_mouse_interaction() {
 
     // Test that the render effect returns the shimmer array
     let effect_t100 = entity.get_render_effect(100).unwrap();
-    let effect_t105 = entity.get_render_effect(105).unwrap();
+    let _effect_t105 = entity.get_render_effect(105).unwrap();
 
     assert!(
         effect_t100.0 == "+"

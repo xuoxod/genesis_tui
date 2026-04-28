@@ -1,6 +1,6 @@
 use genesis_tui::utils::color::RgbLerp;
 use genesis_tui::utils::projection::ViewportProjection;
-use glam::{Vec2, Vec3};
+use glam::Vec3;
 
 #[test]
 fn test_color_lerping_and_queue() {
@@ -37,7 +37,7 @@ fn test_viewport_projection() {
 }
 
 // Gradient Specific Tests
-use genesis_tui::utils::gradient::{generate_gradient, lerp_color};
+use genesis_tui::utils::gradient::generate_gradient;
 
 #[test]
 fn test_generic_gradient_generation() {

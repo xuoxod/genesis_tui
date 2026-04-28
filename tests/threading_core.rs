@@ -6,7 +6,7 @@ use std::time::Duration;
 #[test]
 fn test_engine_threading_decoupling() {
     let engine = Engine::new(Grid::new(100, 100));
-    let (mut handle, join_handle) = EngineController::spawn(engine);
+    let (handle, join_handle) = EngineController::spawn(engine);
 
     // Initial state
     assert_eq!(handle.get_state().is_paused(), false);
