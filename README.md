@@ -1,32 +1,34 @@
-# Genesis TUI
+# Genesis TUI Engine
 
-A terminal-based procedural digital terrarium simulator built with Rust. Designed using strict TDD (Test-Driven Development), clean architecture (Separation of Concerns), and a decoupled background engine.
+[![Rust](https://img.shields.io/badge/rust-v1.85+-blue.svg)](https://www.rust-lang.org)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Architecture](https://img.shields.io/badge/architecture-MPSC%20Decoupled-orange)](docs/01_architecture.md)
 
-## Architecture
+**Genesis TUI** is an enterprise-grade, procedural digital terrarium and genetic simulator built entirely in Rust. Running directly in your terminal, it leverages rigorous Newtonian kinematics, concurrent message-passing architecture, and a specialized "fossil record" buffer to deliver a 60 FPS, time-travel-capable simulation environment.
 
-- **Physics Simulation:** Employs `f32` vectors via `glam` for professional-grade Newtonian kinematics and continuous spatial tracking. Includes perfectly elastic boundary collisions.
-- **Concurrency (MPSC):** The simulation engine operates entirely in an isolated OS thread. Your keystrokes send non-blocking `mpsc` channel commands to the simulation, guaranteeing a flawless 60 FPS TUI rendering layer regardless of background math intensity.
-- **The Fossil Record:** A rotating snapshot memory buffer saves chronological states, enabling flawless backwards time-travel.
+## Key Capabilities
 
-## Controls
+- **Massively Decoupled Architecture:** The simulation math and TUI rendering operate on entirely different OS threads, synchronizing state purely via lock-free `Arc<RwLock>` reads and MPSC command channels.
+- **Continuous `f32` Physics:** Grid-based mapping is abandoned in favor of continuous Euclidean space driven by `glam`. Entities possess high-precision vectors, executing perfectly elastic bounding-box collisions.
+- **Chronological Time Travel:** The Engine maintains a sliding `fossil_record` buffer. Users can freeze reality and scrub backward through the mathematical history of the terrarium frame-by-frame.
+- **Enterprise Telemetry:** Features a bottom-anchored, color-coded `ratatui` dashboard displaying live Ticks, Entity Counts, Engine Polling Rates, and interactive Play/Pause states.
+- **Test-Driven Foundation:** Built strictly using TDD principles, heavily implementing Integration Tests before core concepts are ever rendered to the screen.
 
-Because the UI layer is 100% decoupled from the simulation thread, these inputs are processed instantly over the active MPSC channel:
+## Documentation Suite
 
-| Key | Action | Description |
-| :--- | :--- | :--- |
-| `q` | **Quit** | Gracefully tears down the background physics thread and exits. |
-| `Spacebar` | **Pause / Play** | Freezes or unfreezes time. |
-| `Up Arrow` | **Fast Forward** | Speeds up the simulation by decreasing the tick delay (down to ~60 FPS). |
-| `Down Arrow` | **Slow Motion** | Slows down the simulation by increasing the tick delay (up to 500ms/tick). |
-| `Right Arrow`| **Step Forward**| Explicitly calculates and advances exactly 1 frame forward. Best used while paused. |
-| `Left Arrow` | **Time Travel (Rewind)**| Scrubs time backward! Steps incrementally backward into the local fossil record buffer and restores previous entity kinematics/positions. |
-| `r` | **Reset** | Wipes the entire grid, clearing the fossil record and emptying all entities. |
+We maintain a strict separation between high-level overviews and granular engineering decisions. Please refer to our documentation modules:
+
+- [**01. Core Architecture & Threading**](docs/01_architecture.md) - Details on MPSC, State Locks, and the Engine Loop.
+- [**02. Physics & Kinematics Engine**](docs/02_physics.md) - Explanation of `glam` integrations, clipping, and Eulerian math.
+- [**03. User Guide & TUI Keybindings**](docs/03_user_guide.md) - Full breakdown of the console interface and interactive controls.
 
 ## Quick Start
 
-Ensure you have Rust and Cargo installed, then execute:
-
 ```bash
+# Clone the repository
+git clone https://github.com/xuoxod/genesis_tui.git
+cd genesis_tui
+
+# Run the localized engine
 cargo run
 ```
-# genesis_tui
