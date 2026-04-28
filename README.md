@@ -22,15 +22,15 @@ A "Zero-Player" ecosystem simulator and procedural evolution engine running enti
 * `src/db/` - SQLite bindings for saving long-term simulations.
 * `src/utils/` - Constants, colors, and shared logic.
 
-## Usage
+### Usage
 
 '''bash
 
-# Compile with pure performance optimizations
+## Compile with pure performance optimizations
 
 cargo build --release
 
-# Run the terrarium
+## Run the terrarium
 
 cargo run --release
 '''
