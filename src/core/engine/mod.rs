@@ -95,6 +95,36 @@ impl Engine {
         &self.entities
     }
 
+    pub fn add_entities(&mut self, count: usize) {
+        use rand::Rng;
+        let mut rng = rand::thread_rng();
+        for _ in 0..count {
+            let next_id = self.entities.len() as u64 + 1;
+            let mut ent = Entity::new(
+                next_id,
+                crate::core::grid::Position::new(
+                    rng.gen_range(0.0..self.grid.width() as f32),
+                    rng.gen_range(0.0..self.grid.height() as f32),
+                ),
+                crate::core::genetics::Genome::new_random(10),
+            );
+            // Randomly push them around
+            ent.set_velocity(crate::core::grid::Velocity::new(
+                rng.gen_range(-1.0..1.0),
+                rng.gen_range(-1.0..1.0),
+            ));
+            self.entities.push(ent);
+        }
+    }
+
+    pub fn remove_entities(&mut self, count: usize) {
+        for _ in 0..count {
+            if self.entities.pop().is_none() {
+                break;
+            }
+        }
+    }
+
     pub fn tick_count(&self) -> u64 {
         self.tick_count
     }

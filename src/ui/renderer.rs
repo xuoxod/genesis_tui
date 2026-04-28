@@ -225,8 +225,10 @@ impl Renderer {
                             ),
                         );
                     }
-                    let mut render_char = "●";
-                    let mut render_color = Color::Reset;
+                    let mut render_char = ent.shape_char();
+                    let base_c = ent.base_color();
+                    let mut render_color =
+                        Color::Rgb(base_c.x as u8, base_c.y as u8, base_c.z as u8);
 
                     if let Some((frame, color)) = ent.get_render_effect(current_tick) {
                         render_char = frame;

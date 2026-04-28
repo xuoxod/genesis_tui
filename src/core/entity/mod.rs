@@ -1,6 +1,7 @@
 use crate::constants::colors;
 use crate::core::genetics::Genome;
 use crate::core::grid::{Position, Velocity};
+use crate::core::visuals::Shape;
 use crate::utils::gradient::generate_gradient;
 use glam::Vec3;
 use std::collections::VecDeque;
@@ -18,6 +19,9 @@ pub struct Entity {
     spark_gradient: Vec<Vec3>,
 
     // Mouse Interaction state
+    shape: Shape,
+    base_color: Vec3,
+    custom_gradient: Option<Vec<Vec3>>,
     is_interacting: bool,
     interaction_start_tick: usize,
     shimmer_gradient: Vec<Vec3>,
@@ -46,6 +50,9 @@ impl Entity {
             position,
             velocity: Velocity::ZERO,
             genome,
+            shape: Shape::Dot,
+            base_color: colors::WHITE,
+            custom_gradient: None,
             is_electrified: false,
             electrification_start_tick: 0,
             spark_gradient,
@@ -69,6 +76,38 @@ impl Entity {
     pub fn genome(&self) -> &Genome {
         &self.genome
     }
+
+    // Generic Decoupled Visual Methods
+    pub fn shape(&self) -> Shape {
+        self.shape
+    }
+    pub fn shape_char(&self) -> &'static str {
+        self.shape.as_str()
+    }
+    pub fn base_color(&self) -> Vec3 {
+        self.base_color
+    }
+    pub fn set_shape(&mut self, shape: Shape) {
+        self.shape = shape;
+    }
+    pub fn set_base_color(&mut self, color: Vec3) {
+        self.base_color = color;
+    }
+    pub fn apply_custom_gradient(&mut self, gradient: Vec<Vec3>) {
+        self.custom_gradient = Some(gradient);
+    }
+    pub fn has_custom_gradient(&self) -> bool {
+        self.custom_gradient.is_some()
+    }
+    pub fn custom_gradient(&self) -> Option<&Vec<Vec3>> {
+        self.custom_gradient.as_ref()
+    }
+    pub fn reset_visuals(&mut self) {
+        self.shape = Shape::Dot;
+        self.base_color = crate::constants::colors::WHITE;
+        self.custom_gradient = None;
+    }
+
     pub fn trail(&self) -> &VecDeque<Position> {
         &self.trail
     }

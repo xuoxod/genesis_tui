@@ -108,3 +108,23 @@ fn test_engine_mouse_interaction_handling() {
         "Velocity should have been nudged"
     );
 }
+
+#[test]
+fn test_engine_add_remove_entities() {
+    let mut engine =
+        genesis_tui::core::engine::Engine::new(genesis_tui::core::grid::Grid::new(100, 100));
+    engine.reset(); // clear
+    assert_eq!(engine.entities().len(), 0);
+
+    // Add dynamically
+    engine.add_entities(5);
+    assert_eq!(engine.entities().len(), 5);
+
+    // Remove dynamically
+    engine.remove_entities(3);
+    assert_eq!(engine.entities().len(), 2);
+
+    // Remove more than exists
+    engine.remove_entities(10);
+    assert_eq!(engine.entities().len(), 0);
+}
