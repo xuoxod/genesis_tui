@@ -1,6 +1,6 @@
 use genesis_tui::core::entity::Entity;
-use genesis_tui::core::grid::Position;
 use genesis_tui::core::genetics::Genome;
+use genesis_tui::core::grid::Position;
 
 #[test]
 fn test_entity_creation() {
@@ -55,13 +55,19 @@ fn test_entity_mouse_interaction() {
     let mut entity = Entity::new(1, pos, genome);
 
     entity.interact(100);
-    
-    // Test that the render effect returns the shimmer array 
+
+    // Test that the render effect returns the shimmer array
     let effect_t100 = entity.get_render_effect(100).unwrap();
     let effect_t105 = entity.get_render_effect(105).unwrap();
-    
-    assert!(effect_t100.0 == "+" || effect_t100.0 == "x" || effect_t100.0 == "*" || effect_t100.0 == "." || effect_t100.0 == " ");
-    
+
+    assert!(
+        effect_t100.0 == "+"
+            || effect_t100.0 == "x"
+            || effect_t100.0 == "*"
+            || effect_t100.0 == "."
+            || effect_t100.0 == " "
+    );
+
     // Prove it decays and disappears after 30 ticks
     assert!(entity.get_render_effect(131).is_none());
 }

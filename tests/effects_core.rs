@@ -1,10 +1,10 @@
-use genesis_tui::utils::fx::animate_frame;
 use genesis_tui::constants::effects;
+use genesis_tui::utils::fx::animate_frame;
 
 #[test]
 fn test_animate_frame_wraps_correctly() {
     let dummy_frames = &["A", "B", "C"];
-    
+
     // tick 0 -> A, tick 1 -> B, tick 2 -> C, tick 3 -> A
     assert_eq!(animate_frame(dummy_frames, 0, 1), "A");
     assert_eq!(animate_frame(dummy_frames, 1, 1), "B");
@@ -16,7 +16,7 @@ fn test_animate_frame_wraps_correctly() {
 #[test]
 fn test_animate_frame_speed_divider() {
     let dummy_frames = &["Frame1", "Frame2"];
-    
+
     // With speed_divider = 3, each frame should persist for 3 ticks
     assert_eq!(animate_frame(dummy_frames, 0, 3), "Frame1");
     assert_eq!(animate_frame(dummy_frames, 1, 3), "Frame1");

@@ -35,7 +35,7 @@ impl RgbLerp {
         if let Some(target) = self.targets.front() {
             // Linear Interpolation (Lerp) algorithm
             self.current = self.current.lerp(*target, self.speed);
-            
+
             // If we are chromatically "close enough" to the target, snap to it and pop the queue
             if self.current.distance(*target) < 1.0 {
                 self.current = *target;

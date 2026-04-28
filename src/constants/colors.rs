@@ -43,4 +43,4 @@ pub const DEAD_DARK: Vec3 = SLATE;
 
 // Animation Configs
 pub const DEFAULT_LERP_SPEED: f32 = 0.05; // 5% progression per tick
-pub const FAST_LERP_SPEED: f32 = 0.20;    // 20% progression per tick
+pub const FAST_LERP_SPEED: f32 = 0.20; // 20% progression per tick

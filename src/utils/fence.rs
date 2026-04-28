@@ -1,6 +1,6 @@
-use glam::Vec3;
 use crate::constants::colors;
 use crate::utils::gradient::generate_gradient;
+use glam::Vec3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum FenceSide {
@@ -23,7 +23,13 @@ pub struct ElectricFence {
 impl ElectricFence {
     pub fn new() -> Self {
         // High voltage electric blue, cyan, and glowing white effects!
-        let gradient_stops = vec![colors::NAVY, colors::CYAN, colors::WHITE, colors::CYAN, colors::NAVY];
+        let gradient_stops = vec![
+            colors::NAVY,
+            colors::CYAN,
+            colors::WHITE,
+            colors::CYAN,
+            colors::NAVY,
+        ];
         let spark_gradient = generate_gradient(&gradient_stops, 30); // 30-tick effect cycle
         Self {
             top: false,
@@ -46,7 +52,7 @@ impl ElectricFence {
     pub fn turn_on(&mut self, side: FenceSide) {
         self.set_side(side, true);
     }
-    
+
     pub fn turn_off(&mut self, side: FenceSide) {
         self.set_side(side, false);
     }
@@ -79,14 +85,14 @@ impl ElectricFence {
         if !self.is_active(side) {
             return None;
         }
-        
+
         let cycle_index = tick % self.spark_gradient.len();
         let color = self.spark_gradient[cycle_index];
-        
+
         // A series of nerdy electrified chars that animate over time!
         let chars = crate::constants::effects::ELECTRIC_SPARKS;
         let frame = crate::utils::fx::animate_frame(chars, tick, 3);
-        
+
         Some((frame, color))
     }
 }

@@ -1,8 +1,9 @@
-use crate::core::grid::{Position, Velocity};
-use crate::core::genetics::Genome;
 use crate::constants::colors;
+use crate::core::genetics::Genome;
+use crate::core::grid::{Position, Velocity};
 use crate::utils::gradient::generate_gradient;
 use glam::Vec3;
+use std::collections::VecDeque;
 
 #[derive(Debug, Clone)]
 pub struct Entity {
@@ -10,7 +11,7 @@ pub struct Entity {
     position: Position,
     velocity: Velocity,
     genome: Genome,
-    
+
     // Electrification state
     is_electrified: bool,
     electrification_start_tick: usize,
@@ -21,23 +22,30 @@ pub struct Entity {
     interaction_start_tick: usize,
     shimmer_gradient: Vec<Vec3>,
     pinged_start_tick: usize,
+    trail: VecDeque<Position>,
 }
 
 impl Entity {
     pub fn new(id: u64, position: Position, genome: Genome) -> Self {
         // High voltage electric effect gradient
-        let gradient_stops = vec![colors::YELLOW, colors::WHITE, colors::CYAN, colors::NAVY, colors::MAGENTA];
+        let gradient_stops = vec![
+            colors::YELLOW,
+            colors::WHITE,
+            colors::CYAN,
+            colors::NAVY,
+            colors::MAGENTA,
+        ];
         let spark_gradient = generate_gradient(&gradient_stops, 15); // 15-tick fast cycle
-        
+
         let shimmer_stops = vec![colors::MAGENTA, colors::CYAN, colors::MAGENTA];
         let shimmer_gradient = generate_gradient(&shimmer_stops, 20); // 20-tick pulse
 
         // We initialize with a dead velocity and let the engine inject force, or derive it from the genome.
-        Self { 
-            id, 
-            position, 
-            velocity: Velocity::ZERO, 
-            genome, 
+        Self {
+            id,
+            position,
+            velocity: Velocity::ZERO,
+            genome,
             is_electrified: false,
             electrification_start_tick: 0,
             spark_gradient,
@@ -45,27 +53,49 @@ impl Entity {
             interaction_start_tick: 0,
             shimmer_gradient,
             pinged_start_tick: 0,
+            trail: VecDeque::with_capacity(10),
         }
     }
 
-    pub fn id(&self) -> u64 { self.id }
-    pub fn position(&self) -> &Position { &self.position }
-    pub fn velocity(&self) -> &Velocity { &self.velocity }
-    pub fn genome(&self) -> &Genome { &self.genome }
-    pub fn is_electrified(&self) -> bool { self.is_electrified }
-    
-    pub fn set_position(&mut self, pos: Position) { self.position = pos; }
-    pub fn set_velocity(&mut self, vel: Velocity) { self.velocity = vel; }
+    pub fn id(&self) -> u64 {
+        self.id
+    }
+    pub fn position(&self) -> &Position {
+        &self.position
+    }
+    pub fn velocity(&self) -> &Velocity {
+        &self.velocity
+    }
+    pub fn genome(&self) -> &Genome {
+        &self.genome
+    }
+    pub fn trail(&self) -> &VecDeque<Position> {
+        &self.trail
+    }
+    pub fn is_electrified(&self) -> bool {
+        self.is_electrified
+    }
+
+    pub fn set_position(&mut self, pos: Position) {
+        self.trail.push_back(self.position.clone());
+        if self.trail.len() > 10 {
+            self.trail.pop_front();
+        }
+        self.position = pos;
+    }
+    pub fn set_velocity(&mut self, vel: Velocity) {
+        self.velocity = vel;
+    }
 
     pub fn mutate_genome(&mut self, rate: f64) {
         self.genome.mutate(rate);
     }
-    
+
     pub fn electrify(&mut self, current_tick: usize) {
         self.is_electrified = true;
         self.electrification_start_tick = current_tick;
     }
-    
+
     pub fn cure_electrification(&mut self) {
         self.is_electrified = false;
     }
@@ -85,11 +115,11 @@ impl Entity {
 
     pub fn get_render_effect(&self, current_tick: usize) -> Option<(&'static str, Vec3)> {
         if self.is_electrified {
-        // High priority ping flash
-        let ping_elapsed = current_tick.saturating_sub(self.pinged_start_tick);
-        if self.pinged_start_tick > 0 && ping_elapsed <= 2 {
-            return Some(("X", Vec3::new(255.0, 255.0, 255.0)));
-        }
+            // High priority ping flash
+            let ping_elapsed = current_tick.saturating_sub(self.pinged_start_tick);
+            if self.pinged_start_tick > 0 && ping_elapsed <= 2 {
+                return Some(("X", Vec3::new(255.0, 255.0, 255.0)));
+            }
 
             let elapsed = current_tick.saturating_sub(self.electrification_start_tick);
             let cycle_index = elapsed % self.spark_gradient.len();
@@ -113,7 +143,7 @@ impl Entity {
 
             return Some((frame, color));
         }
-        
+
         None
     }
 }

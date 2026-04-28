@@ -41,7 +41,7 @@ impl EngineController {
         };
 
         let join_handle = thread::spawn(move || {
-            let mut tick_rate = 16; 
+            let mut tick_rate = 16;
             let mut running = true;
 
             while running {
@@ -51,14 +51,30 @@ impl EngineController {
                 // Process all pending commands
                 while let Ok(cmd) = rx.try_recv() {
                     match cmd {
-                        EngineCommand::Pause => { worker_state.write().unwrap().pause(); }
-                        EngineCommand::Play => { worker_state.write().unwrap().play(); }
-                        EngineCommand::TogglePause => { worker_state.write().unwrap().toggle_pause(); }
-                        EngineCommand::StepForward => { worker_state.write().unwrap().step_forward(); }
-                        EngineCommand::StepBackward => { worker_state.write().unwrap().step_backward(); }
-                        EngineCommand::Reset => { worker_state.write().unwrap().reset(); }
-                        EngineCommand::SetTickRate(rate) => { tick_rate = rate; }
-                        EngineCommand::Quit => { running = false; }
+                        EngineCommand::Pause => {
+                            worker_state.write().unwrap().pause();
+                        }
+                        EngineCommand::Play => {
+                            worker_state.write().unwrap().play();
+                        }
+                        EngineCommand::TogglePause => {
+                            worker_state.write().unwrap().toggle_pause();
+                        }
+                        EngineCommand::StepForward => {
+                            worker_state.write().unwrap().step_forward();
+                        }
+                        EngineCommand::StepBackward => {
+                            worker_state.write().unwrap().step_backward();
+                        }
+                        EngineCommand::Reset => {
+                            worker_state.write().unwrap().reset();
+                        }
+                        EngineCommand::SetTickRate(rate) => {
+                            tick_rate = rate;
+                        }
+                        EngineCommand::Quit => {
+                            running = false;
+                        }
                         EngineCommand::ToggleFenceAll => {
                             let mut w = worker_state.write().unwrap();
                             if w.fence().is_active(crate::utils::fence::FenceSide::Top) {
@@ -67,20 +83,34 @@ impl EngineController {
                                 w.fence_mut().turn_on_all();
                             }
                         }
-                        EngineCommand::ToggleFenceTop => { 
+                        EngineCommand::ToggleFenceTop => {
                             let mut w = worker_state.write().unwrap();
                             let s = w.fence().is_active(crate::utils::fence::FenceSide::Top);
-                            if s { w.fence_mut().turn_off(crate::utils::fence::FenceSide::Top); } else { w.fence_mut().turn_on(crate::utils::fence::FenceSide::Top); }
+                            if s {
+                                w.fence_mut().turn_off(crate::utils::fence::FenceSide::Top);
+                            } else {
+                                w.fence_mut().turn_on(crate::utils::fence::FenceSide::Top);
+                            }
                         }
-                        EngineCommand::ToggleFenceBottom => { 
+                        EngineCommand::ToggleFenceBottom => {
                             let mut w = worker_state.write().unwrap();
                             let s = w.fence().is_active(crate::utils::fence::FenceSide::Bottom);
-                            if s { w.fence_mut().turn_off(crate::utils::fence::FenceSide::Bottom); } else { w.fence_mut().turn_on(crate::utils::fence::FenceSide::Bottom); }
+                            if s {
+                                w.fence_mut()
+                                    .turn_off(crate::utils::fence::FenceSide::Bottom);
+                            } else {
+                                w.fence_mut()
+                                    .turn_on(crate::utils::fence::FenceSide::Bottom);
+                            }
                         }
-                        EngineCommand::ToggleFenceLeft => { 
+                        EngineCommand::ToggleFenceLeft => {
                             let mut w = worker_state.write().unwrap();
                             let s = w.fence().is_active(crate::utils::fence::FenceSide::Left);
-                            if s { w.fence_mut().turn_off(crate::utils::fence::FenceSide::Left); } else { w.fence_mut().turn_on(crate::utils::fence::FenceSide::Left); }
+                            if s {
+                                w.fence_mut().turn_off(crate::utils::fence::FenceSide::Left);
+                            } else {
+                                w.fence_mut().turn_on(crate::utils::fence::FenceSide::Left);
+                            }
                         }
                         EngineCommand::SpawnRadarPing(x, y) => {
                             worker_state.write().unwrap().spawn_radar_ping(x, y);
@@ -91,10 +121,15 @@ impl EngineController {
                         EngineCommand::Click(x, y) => {
                             worker_state.write().unwrap().handle_click(x, y);
                         }
-                        EngineCommand::ToggleFenceRight => { 
+                        EngineCommand::ToggleFenceRight => {
                             let mut w = worker_state.write().unwrap();
                             let s = w.fence().is_active(crate::utils::fence::FenceSide::Right);
-                            if s { w.fence_mut().turn_off(crate::utils::fence::FenceSide::Right); } else { w.fence_mut().turn_on(crate::utils::fence::FenceSide::Right); }
+                            if s {
+                                w.fence_mut()
+                                    .turn_off(crate::utils::fence::FenceSide::Right);
+                            } else {
+                                w.fence_mut().turn_on(crate::utils::fence::FenceSide::Right);
+                            }
                         }
                     }
                 }
