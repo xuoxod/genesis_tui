@@ -12,17 +12,17 @@ fn test_engine_time_controls() {
     // Pause test
     engine.toggle_pause();
     engine.tick();
-    assert_eq!(engine.epoch(), 0, "No time jump while paused");
+    assert_eq!(engine.tick_count(), 0, "No time jump while paused");
 
     // Frame-by-frame stepping
     engine.step_forward();
-    assert_eq!(engine.epoch(), 1, "Manual step bypasses pause");
+    assert_eq!(engine.tick_count(), 1, "Manual step bypasses pause");
 
     // Time inversion (Reverse)
     engine.step_forward(); // Goes to 2
-    assert_eq!(engine.epoch(), 2);
+    assert_eq!(engine.tick_count(), 2);
     engine.step_backward(); 
-    assert_eq!(engine.epoch(), 1, "Time travels backward");
+    assert_eq!(engine.tick_count(), 1, "Time travels backward");
     assert_eq!(engine.entities().len(), 1, "Fossil record restores entity state");
 }
 
@@ -32,6 +32,6 @@ fn test_engine_reset() {
     engine.step_forward();
     engine.add_entity(Entity::new(1, Position::new(0.0, 0.0), Genome::new_random(16)));
     engine.reset();
-    assert_eq!(engine.epoch(), 0);
+    assert_eq!(engine.tick_count(), 0);
     assert_eq!(engine.entities().len(), 0);
 }
