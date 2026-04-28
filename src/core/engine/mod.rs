@@ -3,6 +3,7 @@ pub mod controller;
 use crate::core::grid::{Grid, Position, Velocity};
 use crate::core::entity::Entity;
 use std::collections::VecDeque;
+use crate::utils::fence::{ElectricFence, FenceSide};
 
 #[derive(Clone)]
 pub struct Engine {
@@ -10,7 +11,8 @@ pub struct Engine {
     entities: Vec<Entity>,
     paused: bool,
     tick_count: u64,
-    fossil_record: VecDeque<Vec<Entity>>, 
+    fossil_record: VecDeque<Vec<Entity>>,
+    fence: ElectricFence, 
 }
 
 impl Engine {
@@ -21,6 +23,7 @@ impl Engine {
             paused: false,
             tick_count: 0,
             fossil_record: VecDeque::new(),
+            fence: ElectricFence::new(),
         }
     }
 

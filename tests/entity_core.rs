@@ -24,3 +24,26 @@ fn test_entity_mutation_passthrough() {
 
     assert_ne!(original_dna, entity.genome().sequence());
 }
+
+#[test]
+fn test_entity_electrification() {
+    let pos = Position::new(0.0, 0.0);
+    let genome = Genome::new_random(16);
+    let mut entity = Entity::new(1, pos, genome);
+
+    assert!(!entity.is_electrified());
+    assert!(entity.get_render_effect(0).is_none());
+
+    entity.electrify(10);
+    assert!(entity.is_electrified());
+
+    let effect_t10 = entity.get_render_effect(10).unwrap();
+    let effect_t15 = entity.get_render_effect(15).unwrap();
+
+    assert_eq!(effect_t10.0, "z");
+    assert_ne!(effect_t10, effect_t15); // The effect animates over time
+
+    entity.cure_electrification();
+    assert!(!entity.is_electrified());
+    assert!(entity.get_render_effect(20).is_none());
+}

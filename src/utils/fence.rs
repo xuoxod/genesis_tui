@@ -84,9 +84,9 @@ impl ElectricFence {
         let color = self.spark_gradient[cycle_index];
         
         // A series of nerdy electrified chars that animate over time!
-        let chars = ["|", "/", "-", "\\", "++", "#", "X", ">", "<", "~", "*"];
-        let char_idx = (tick / 3) % chars.len();
+        let chars = crate::constants::effects::ELECTRIC_SPARKS;
+        let frame = crate::utils::fx::animate_frame(chars, tick, 3);
         
-        Some((chars[char_idx], color))
+        Some((frame, color))
     }
 }
