@@ -13,10 +13,20 @@ use rand::Rng;
 use ratatui::{backend::CrosstermBackend, Terminal};
 use std::io;
 
+use std::panic;
+
 fn main() -> io::Result<()> {
     // 1. Initialize the Universal Ghost Reporter
     let _telemetry_guard = genesis_tui::utils::telemetry::init_telemetry();
     tracing::info!("Initializing Genesis TUI Engine and Window Mode...");
+
+    // Setup an emergency panic hook to tear down the raw terminal mode
+    let original_hook = panic::take_hook();
+    panic::set_hook(Box::new(move |panic_info| {
+        let _ = crossterm::terminal::disable_raw_mode();
+        let _ = crossterm::execute!(io::stdout(), crossterm::terminal::LeaveAlternateScreen, crossterm::event::DisableMouseCapture);
+        original_hook(panic_info);
+    }));
     enable_raw_mode()?;
     io::stdout().execute(EnterAlternateScreen)?;
     let mut terminal = Terminal::new(CrosstermBackend::new(io::stdout()))?;
