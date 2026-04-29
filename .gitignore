@@ -6,4 +6,3 @@ logs/
 *.log
 *.sh
 *.py
-Cargo.lock
