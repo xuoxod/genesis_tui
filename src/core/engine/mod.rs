@@ -218,6 +218,8 @@ impl Engine {
 
     pub fn reset(&mut self) {
         self.entities.clear();
+        self.singularities.clear();
+        self.radar_pings.clear();
         self.tick_count = 0;
         self.fossil_record.clear();
         self.paused = false;

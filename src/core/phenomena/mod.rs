@@ -19,7 +19,7 @@ impl Singularity {
     }
 
     pub fn is_active(&self, current_tick: usize) -> bool {
-        current_tick - self.spawn_tick < self.duration
+        current_tick.saturating_sub(self.spawn_tick) < self.duration
     }
 }
 
